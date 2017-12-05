@@ -6,12 +6,14 @@ function calc() {
 
 	input.split("\n").forEach(line => {
 		const words = line.split(" ");
+
 		const set = new Set(words);
-		const set2 = new Set(line.split(" ").map(w => w.split("").sort().join("")));
 
 		if (words.length == set.size) {
 			++n;
 		}
+
+		const set2 = new Set(words.map(w => w.split("").sort().join("")));
 
 		if (words.length == set2.size) {
 			++n2;
