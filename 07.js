@@ -2,7 +2,7 @@
 
 function calc() {
 	let objs = input.split("\n")
-		.map(line => line.split(/[^a-zA-Z\d]+/g).filter(word => word.length > 0))
+		.map(line => line.split(/[^a-z\d]+/g).filter(word => word.length > 0))
 		.reduce((m, words) => m.set(words[0],
 			{name: words[0], weight: +words[1], children: words.slice(2)}), new Map());
 
@@ -24,12 +24,7 @@ function calc() {
 function findWeightCorr(o) {
 	let goodWeight = o.weight;
 
-	for (let found = false; !found;) {
-		if (o.children.length == 0) {
-			found = true;
-			break;
-		}
-
+	for (let found = false; !found && o.children.length != 0;) {
 		let cw = o.children.reduce((m, c) => ((m[getTotalWeight(c)] = c), m), {});
 
 		let weightsMap = o.children.map(child => getTotalWeight(child))
