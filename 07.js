@@ -1,34 +1,65 @@
 "use strict";
 
 function calc() {
-	var inp = input.split("\n").map(line => {
-		let a = line.split("-");
-		let words1 = a[0].split(" ");
-		let words2 = a.length > 1 ? a[1].split(">").join("").slice(1) : [];
-		return {
-			f1: words1[0],
-			f2: words1[1].split("(").join("").split(")").join(""),
-			f3: words2.length > 0 ? words2.split(",").map(w => w.split(" ").join("")) : null
-		}
+	let objs = input.split("\n")
+		.map(line => line.split(/[^a-zA-Z\d]+/g).filter(word => word.length > 0))
+		.reduce((m, words) => m.set(words[0],
+			{name: words[0], weight: +words[1], children: words.slice(2)}), new Map());
+
+	let rootObj = null;
+
+	objs.forEach(o => {
+		o.children = o.children.map(child => objs.get(child));
+		o.children.forEach(child => child.parent = o);
+		rootObj = o;
 	});
 
-	let list = inp.map(o => o.f1);
+	while (rootObj.parent != undefined) {
+		rootObj = rootObj.parent;
+	}
 
-	inp.forEach(o => {
-		if (o.f3 !== null) {
-			o.f3.forEach(oo => {
-				let index = list.indexOf(oo);
-				if (index >= 0) {
-					list.splice(index, 1);
-				}
-			})
+	return rootObj.name + " " + findWeightCorr(rootObj);
+}
+
+function findWeightCorr(o) {
+	let goodWeight = o.weight;
+
+	for (let found = false; !found;) {
+		if (o.children.length == 0) {
+			found = true;
+			break;
 		}
-	});
 
-	let root = list[0];
+		let cw = o.children.reduce((m, c) => ((m[getTotalWeight(c)] = c), m), {});
 
+		let weightsMap = o.children.map(child => getTotalWeight(child))
+			.reduce((m, e) => ((m[e] = (m[e] || 0) + 1), m), {});
 
-	return root;
+		let leastWeights = Object.keys(weightsMap).filter(key => weightsMap[key] == 1).map(Number);
+		if (leastWeights.length == 0) {
+			found = true;
+			break;
+		}
+
+		let badWeight = leastWeights[0];
+		o = cw[badWeight];
+		goodWeight = o.weight + Object.keys(weightsMap).filter(key => key != badWeight).map(Number)[0] - badWeight;
+	}
+
+	return goodWeight;
+}
+
+function getTopWeight(o) {
+	if (o.topWeight == undefined) {
+		o.topWeight = 0;
+		o.children.forEach(child => o.topWeight += getTotalWeight(child));
+	}
+
+	return o.topWeight;
+}
+
+function getTotalWeight(o) {
+	return o.weight + getTopWeight(o);
 }
 
 var input = `uglvj (99) -> ymfjt, gkpgf
