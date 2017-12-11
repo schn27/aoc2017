@@ -6,13 +6,13 @@ function calc() {
 
 function part1() {
 	const lengths = input.split(",").map(Number);
-	let list = knotHash([...Array(256).keys()], lengths, 1);
+	let list = knotHash(lengths, 1);
 	return list[0] * list[1];	
 }
 
 function part2() {
 	const lengths = [...input.split("").map(c => c.charCodeAt()), 17, 31, 73, 47, 23];
-	const sparse = knotHash([...Array(256).keys()], lengths, 64);
+	const sparse = knotHash(lengths, 64);
 	let dense = [];
 	let xor = 0;
 	let n = 0;
@@ -28,7 +28,8 @@ function part2() {
 	return dense.map(e => ("0"+(e.toString(16))).slice(-2)).join("");
 }
 
-function knotHash(list, lengths, repeat) {
+function knotHash(lengths, repeat) {
+	let list = [...Array(256).keys()];
 	let pos = 0;
 	let skip = 0;
 
