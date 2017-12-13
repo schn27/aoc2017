@@ -13,11 +13,13 @@ function getSeverity(layers, delay) {
 	let severity = 0;
 	let caught = false;
 
-	layers.forEach(l => {
-		if ((l[0] + delay) % (l[1] * 2 - 2) == 0) {
+	layers.every(l => {
+		if (((l[0] + delay) % (l[1] * 2 - 2)) == 0) {
 			severity += l[0] * l[1];
 			caught = true;
 		}
+
+		return delay == 0 || !caught;
 	});
 
 	return caught ? severity : -1;
