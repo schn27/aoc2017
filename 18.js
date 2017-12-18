@@ -23,21 +23,7 @@ function part2(prog) {
 	let queue0 = [];
 	let queue1 = [];
 
-	let deadlock = false;
-
-	while (!deadlock) {
-		let cnt0 = 0;
-		let cnt1 = 0;
-
-		while (step(prog, regs0, queue0, queue1)) {
-			++cnt0;
-		}
-
-		while (step(prog, regs1, queue1, queue0)) {
-			++cnt1;
-		}
-
-		deadlock = (cnt0 == 0) && (cnt1 == 0);
+	while (step(prog, regs0, queue0, queue1) || step(prog, regs1, queue1, queue0)) {
 	}
 
 	return regs1.send;
