@@ -3,9 +3,25 @@
 function calc() {
 	const prog = input.split("\n").map(line => line.split(" "));
 
-	let regs0 = {id: 0, pc: 0, p: 0, snd: 0};
-	let regs1 = {id: 1, pc: 0, p: 1, snd: 0};
-	let pipes = [[], []];
+	return part1(prog) + " " + part2(prog);
+}
+
+function part1(prog) {
+	let regs = {pc: 0, send: 0};
+	let queue0 = [];
+	let queue1 = [];
+
+	while(step(prog, regs, queue0, queue1)) {
+	}
+
+	return queue0[queue0.length - 1];
+}
+
+function part2(prog) {
+	let regs0 = {pc: 0, p: 0, send: 0};
+	let regs1 = {pc: 0, p: 1, send: 0};
+	let queue0 = [];
+	let queue1 = [];
 
 	let deadlock = false;
 
@@ -13,21 +29,21 @@ function calc() {
 		let cnt0 = 0;
 		let cnt1 = 0;
 
-		while (step(prog, regs0, pipes)) {
+		while (step(prog, regs0, queue0, queue1)) {
 			++cnt0;
 		}
 
-		while (step(prog, regs1, pipes)) {
+		while (step(prog, regs1, queue1, queue0)) {
 			++cnt1;
 		}
 
 		deadlock = (cnt0 == 0) && (cnt1 == 0);
 	}
 
-	return regs1["snd"];
+	return regs1.send;
 }
 
-function step(prog, regs, pipes) {
+function step(prog, regs, queueOut, queueIn) {
 	if (regs.pc < 0 || regs.pc >= prog.length) {
 		return false;
 	}
@@ -35,9 +51,7 @@ function step(prog, regs, pipes) {
 	const a = prog[regs.pc][1];
 	const b = prog[regs.pc][2];
 
-	let lock = false;
-
-	switch (prog[regs.pc++][0]) {
+	switch (prog[regs.pc][0]) {
 	case "set":
 		regs[a] = getV(regs, b);
 		break;
@@ -56,21 +70,21 @@ function step(prog, regs, pipes) {
 		regs[a] = getV(regs, a) % getV(regs, b);
 		break;
 	case "snd":
-		pipes[regs.id].push(getV(regs, a));
-		++regs.snd;
+		queueOut.push(getV(regs, a));
+		++regs.send;
 		break;
 	case "rcv":
-		const pipe = pipes[regs.id ^ 1];
-		if (pipe.length > 0) {
-			regs[a] = pipe[0];
-			pipe.shift();
+		if (queueIn.length > 0) {
+			regs[a] = queueIn.shift();
 		} else {
-			lock = true;
+			return false;
 		}
 		break;
 	}
 
-	return !lock && regs.pc >= 0 && regs.pc < prog.length;
+	++regs.pc;
+
+	return true;
 }
 
 function getV(regs, arg) {
