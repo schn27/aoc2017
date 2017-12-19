@@ -5,64 +5,28 @@ function calc() {
 
 	let y = 0;
 	let x = rows[0].indexOf('|');
-	let dir = 180;
+	let dx = 0;
+	let dy = 1;
 
 	let letters = [];
-
-	let end = false;
 	let steps = 0;
 
-	while (!end) {
+	while (rows[y][x] != ' ') {
+		if (rows[y][x] == '+') {
+			[dx, dy] = [-dy, dx];
+
+			if (rows[y + dy][x + dx] == ' ') {
+				[dx, dy] = [-dx, -dy];
+			}
+		} else if (rows[y][x] != '|' && rows[y][x] != '-') {
+			letters.push(rows[y][x]);
+		}
+
+		[x, y] = [x + dx, y + dy];
 		++steps;
-
-		switch (rows[y][x]) {
-			case '|':
-			break;
-			case '-':
-			break;
-			case '+':
-				dir -= 90;
-				if (dir < 0) {
-					dir = 270;
-				}
-
-				while (getNext(rows, x, y, dir) == ' ')  {
-					dir += 90;
-					if (dir >= 360) {
-						dir = 0;
-					}
-				}
-			break;
-			case ' ':
-				end = true;
-			default:
-				letters.push(rows[y][x]);
-		}
-
-		if (dir == 0) {
-			--y;
-		} else if (dir == 90) {
-			++x;
-		} else if (dir == 180) {
-			++y;
-		} else {
-			--x;
-		}
 	}
 
-	return letters.join("") + " " + (steps - 1);
-}
-
-function getNext(rows, x, y, dir) {
-	if (dir == 0) {
-		return rows[y - 1][x];
-	} else if (dir == 90) {
-		return rows[y][x + 1];
-	} else if (dir == 180) {
-		return rows[y + 1][x];
-	} else {
-		return rows[y][x - 1];
-	}
+	return letters.join("") + " " + steps;
 }
 
 const input = `                                                           |                                                                                                                                             
