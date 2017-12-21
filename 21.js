@@ -70,19 +70,19 @@ function putPiece(draw, piece, x, y) {
 }
 
 function getRule(pattern, rules) {
-	let p1 = pattern.slice();
-	let p2 = rotate(pattern);
-	let p3 = rotate(p2);
-	let p4 = rotate(p3);
-	let p5 = flip(pattern);
-	let p6 = rotate(p5);
-	let p7 = rotate(p6);
-	let p8 = rotate(p7);
+	const p1 = pattern.slice();
+	const p2 = rotate(pattern);
+	const p3 = rotate(p2);
+	const p4 = rotate(p3);
+	const p5 = flip(pattern);
+	const p6 = rotate(p5);
+	const p7 = rotate(p6);
+	const p8 = rotate(p7);
 
-	let patterns = [p1, p2, p3, p4, p5, p6, p7, p8];
+	const patterns = [p1, p2, p3, p4, p5, p6, p7, p8];
 
 	for (let i = 0; i < patterns.length; ++i) {
-		let key = patterns[i].map(r => r.join("")).join("/");
+		const key = patterns[i].map(r => r.join("")).join("/");
 		if (rules[key] != undefined) {
 			return rules[key].split("/").map(r => r.split(""));
 		}
