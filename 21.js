@@ -1,18 +1,30 @@
 "use strict";
 
 function calc() {
-	const rules = input.split("\n").reduce((m, l) => (m[l.split(" => ")[0]] = l.split(" => ")[1], m), {});
+	const rules = input.split("\n").map(l => l.split(" => "))
+		.reduce((m, r) => (m[r[0]] = r[1], m), {});
 
-	let draw = [[".", "#", "."], [".", ".", "#"], ["#", "#", "#"]];
+	let draw = [
+		[".", "#", "."], 
+		[".", ".", "#"], 
+		["#", "#", "#"]
+	];
+
+	const part1Iter = 5;
+	let part1Draw = draw;
 
 	for (let iter = 0; iter < 18; ++iter) {
-		if ((draw.length % 2 ) == 0) {
-			draw = morph(draw, 2, rules);
-		} else {
-			draw = morph(draw, 3, rules);
+		draw = morph(draw, (draw.length % 2) == 0 ? 2 : 3, rules);
+
+		if (iter == part1Iter - 1) {
+			part1Draw = draw;
 		}
 	}
 
+	return countPixels(part1Draw) + " " + countPixels(draw);
+}
+
+function countPixels(draw) {
 	return draw.reduce((n, r) => n + r.join("").split(".").join("").length, 0);
 }
 
