@@ -1,40 +1,37 @@
 "use strict";
 
 function calc() {
-	const ports = input.split("\n").map(line => line.split("/").map(Number));
+	const components = input.split("\n").map(line => line.split("/").map(Number));
 
-	const strengths = getStrength(makeTree(ports, [0, []]), 0, 0, []);
+	const bridgesInfo = makeBridges(components, [], [])
+		.map(b => [b.reduce((s, c) => s + c[0] + c[1], 0), b.length]);
 
-	const maxStrength = strengths.reduce((m, e) => Math.max(m, e[0]), 0);
-	
-	const maxLength = strengths.reduce((m, e) => Math.max(m, e[1]), 0);
-	const maxStrength2 = strengths.filter(e => e[1] == maxLength)
-		.reduce((m, e) => Math.max(m, e[0]), 0);
+	const part1 = bridgesInfo.reduce((m, b) => Math.max(m, b[0]), 0);
 
-	return maxStrength + " " + maxStrength2;
+	const maxLength = bridgesInfo.reduce((m, b) => Math.max(m, b[1]), 0);
+	const part2 = bridgesInfo.filter(b => b[1] == maxLength)
+		.reduce((m, b) => Math.max(m, b[0]), 0);
+
+	return part1 + " " + part2;
 }
 
-function makeTree(ports, parent) {
-	ports.filter(port => port[0] == parent[0] || port[1] == parent[0])
-		.forEach(c => {
-			let v = (c[0] == parent[0]) ? c[1] : c[0];
-			let p = ports.slice();
-			p.splice(p.indexOf(c), 1);
-			parent[1].push(makeTree(p, [v, []]));
-		});
+function makeBridges(components, bridge, bridgeList) {
+	const backEnd = bridge.length == 0 ? 0 : bridge[bridge.length - 1][1];
+	const candidates = components.filter(c => c[0] == backEnd || c[1] == backEnd);
 
-	return parent;
-}
-
-function getStrength(parent, strength, size, strengths) {
-	if (parent[1].length == 0) {
-		strengths.push([strength, size]);
+	if (candidates.length == 0) {
+		bridgeList.push(bridge);
 	} else {
-		strength += parent[0];
-		parent[1].forEach(c => getStrength(c, strength + c[0], size + 1, strengths));
+		candidates.forEach(c => {
+			let availableComp = components.slice();
+			availableComp.splice(availableComp.indexOf(c), 1);
+			let bridgeFork = bridge.slice();
+			bridgeFork.push(c[0] == backEnd ? [c[0], c[1]] : [c[1], c[0]]);
+			makeBridges(availableComp, bridgeFork, bridgeList);
+		});
 	}
 
-	return strengths;
+	return bridgeList;
 }
 
 const input = `25/13
